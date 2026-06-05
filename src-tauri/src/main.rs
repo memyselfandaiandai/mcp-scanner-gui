@@ -14,12 +14,28 @@ fn main() {
             // In release mode, spawn the Python sidecar
             #[cfg(not(debug_assertions))]
             {
+                // Tauri resolves sidecar binaries with target triple appended
+                let target = std::env::consts::ARCH;
+                let os = std::env::consts::OS;
+                let exe_name = format!("mcp-scanner-backend-{}-pc-{}.exe", target, os);
+
                 let resource_path = app
                     .path()
                     .resource_dir()
                     .expect("failed to get resource dir")
                     .join("sidecar")
-                    .join("mcp-scanner-backend.exe");
+                    .join(&exe_name);
+
+                // Fallback to plain name if triple-named version doesn't exist
+                let resource_path = if resource_path.exists() {
+                    resource_path
+                } else {
+                    app.path()
+                        .resource_dir()
+                        .expect("failed to get resource dir")
+                        .join("sidecar")
+                        .join("mcp-scanner-backend.exe")
+                };
 
                 if resource_path.exists() {
                     println!("[tauri] Spawning sidecar: {:?}", resource_path);
@@ -37,7 +53,6 @@ fn main() {
         .on_window_event(|_window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
                 // Sidecar is a child process, will be killed automatically
-                // when the parent (Tauri app) exits
             }
         })
         .run(tauri::generate_context!())
