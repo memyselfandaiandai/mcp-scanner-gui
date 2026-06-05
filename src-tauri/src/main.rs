@@ -1,32 +1,25 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::process::Command;
+use tauri::Manager;
 
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            // In dev mode, backend is started separately
             #[cfg(debug_assertions)]
             {
                 println!("[tauri] Dev mode: start backend manually on port 3030");
             }
 
-            // In release mode, spawn the Python sidecar
             #[cfg(not(debug_assertions))]
             {
-                // Tauri resolves sidecar binaries with target triple appended
-                let target = std::env::consts::ARCH;
-                let os = std::env::consts::OS;
-                let exe_name = format!("mcp-scanner-backend-{}-pc-{}.exe", target, os);
-
                 let resource_path = app
                     .path()
                     .resource_dir()
                     .expect("failed to get resource dir")
                     .join("sidecar")
-                    .join(&exe_name);
+                    .join("mcp-scanner-backend-x86_64-pc-windows-msvc.exe");
 
-                // Fallback to plain name if triple-named version doesn't exist
                 let resource_path = if resource_path.exists() {
                     resource_path
                 } else {
