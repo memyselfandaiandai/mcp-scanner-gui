@@ -20,21 +20,10 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install mcp-scanner dependency
+      - name: Install Python dependencies
         run: |
-          pip install click pyyaml rich
-
-      - name: Copy scanner module from mcp-scanner repo
-        run: |
-          # Clone mcp-scanner to get the scanner/ module
-          git clone --depth 1 https://github.com/coryabarham/mcp-scanner.git /tmp/mcp-scanner-src
-          Copy-Item -Recurse -Force /tmp/mcp-scanner-src/scanner ./backend/scanner
-          Copy-Item -Force /tmp/mcp-scanner-src/mcp_scanner.py ./backend/mcp_scanner.py
-
-      - name: Install backend dependencies
-        run: |
-          pip install -r backend/requirements.txt
-          pip install pyinstaller
+          python -m pip install --upgrade pip
+          pip install click pyyaml rich fastapi uvicorn python-multipart pyinstaller
 
       - name: Build Python sidecar
         run: |
@@ -46,6 +35,9 @@ jobs:
             --hidden-import=scanner.reporter `
             --hidden-import=scanner.siem_export `
             --hidden-import=uvicorn `
+            --hidden-import=uvicorn.logging `
+            --hidden-import=uvicorn.loops `
+            --hidden-import=uvicorn.loops.auto `
             --hidden-import=fastapi `
             --hidden-import=starlette `
             --hidden-import=pydantic `
