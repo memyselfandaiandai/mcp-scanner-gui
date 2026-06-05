@@ -47,7 +47,11 @@ jobs:
       - name: Setup sidecar for Tauri
         run: |
           New-Item -ItemType Directory -Force -Path src-tauri/sidecar
-          Copy-Item -Force dist/mcp-scanner-backend.exe src-tauri/sidecar/
+          # Copy with the name Tauri expects (target triple appended)
+          $triple = "x86_64-pc-windows-msvc"
+          Copy-Item -Force "dist/mcp-scanner-backend.exe" "src-tauri/sidecar/mcp-scanner-backend-$triple.exe"
+          # Also copy as plain name for dev use
+          Copy-Item -Force "dist/mcp-scanner-backend.exe" "src-tauri/sidecar/mcp-scanner-backend.exe"
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
