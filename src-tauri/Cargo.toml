@@ -1,0 +1,32 @@
+[package]
+name = "mcp-scanner-gui"
+version = "0.1.0"
+description = "MCP Security Scanner — Desktop GUI"
+authors = ["Cory Barham"]
+license = "MIT"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+# Tauri bundler config
+[package.metadata.bundle]
+name = "MCP Scanner"
+identifier = "com.owl.mcp-scanner"
+icon = ["icons/icon.ico"]
+category = "public.app-category.utilities"
+short_description = "Security scanner for MCP server configurations"
+long_description = """
+MCP Security Scanner audits Model Context Protocol (MCP) server
+configurations for security issues including authentication gaps,
+hardcoded secrets, prompt injection, SSRF, and more.
+"""

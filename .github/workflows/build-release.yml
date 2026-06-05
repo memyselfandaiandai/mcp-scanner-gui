@@ -1,0 +1,69 @@
+name: Build Tauri Desktop App
+
+on:
+  push:
+    tags:
+      - 'gui-v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install mcp-scanner dependency
+        run: |
+          pip install click pyyaml rich
+
+      - name: Copy scanner module from mcp-scanner repo
+        run: |
+          # Clone mcp-scanner to get the scanner/ module
+          git clone --depth 1 https://github.com/coryabarham/mcp-scanner.git /tmp/mcp-scanner-src
+          Copy-Item -Recurse -Force /tmp/mcp-scanner-src/scanner ./backend/scanner
+          Copy-Item -Force /tmp/mcp-scanner-src/mcp_scanner.py ./backend/mcp_scanner.py
+
+      - name: Install backend dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pyinstaller
+
+      - name: Build Python sidecar
+        run: |
+          pyinstaller --onefile `
+            --name mcp-scanner-backend `
+            --hidden-import=scanner `
+            --hidden-import=scanner.checks `
+            --hidden-import=scanner.models `
+            --hidden-import=scanner.reporter `
+            --hidden-import=scanner.siem_export `
+            --hidden-import=uvicorn `
+            --hidden-import=fastapi `
+            --hidden-import=starlette `
+            --hidden-import=pydantic `
+            --hidden-import=yaml `
+            backend/main.py
+
+      - name: Setup sidecar for Tauri
+        run: |
+          New-Item -ItemType Directory -Force -Path src-tauri/sidecar
+          Copy-Item -Force dist/mcp-scanner-backend.exe src-tauri/sidecar/
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: gui-v__VERSION__
+          releaseName: 'MCP Scanner GUI v__VERSION__'
+          releaseBody: 'MCP Security Scanner — Desktop GUI (Windows)'
+          releaseDraft: false
+          prerelease: false

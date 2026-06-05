@@ -1,0 +1,41 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicedocio/tauri/dev/.schema/config.schema.json",
+  "productName": "MCP Scanner",
+  "version": "0.1.0",
+  "identifier": "com.owl.mcp-scanner",
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../src"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "MCP Security Scanner",
+        "width": 1100,
+        "height": 750,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "sidecar/mcp-scanner-backend.exe"
+    ],
+    "externalBin": [
+      "sidecar/mcp-scanner-backend"
+    ]
+  }
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Security Scanner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header>
+      <h1>🔒 MCP Security Scanner</h1>
+      <p class="subtitle">Audit MCP server configurations for security issues</p>
+    </header>
+
+    <!-- Upload Section -->
+    <section id="upload-section">
+      <div id="drop-zone" class="drop-zone">
+        <div class="drop-zone-content">
+          <span class="icon">📁</span>
+          <p>Drop your MCP config file here, or <label for="file-input" class="link">browse</label></p>
+          <p class="hint">Supports .json, .yaml, .yml</p>
+        </div>
+        <input type="file" id="file-input" accept=".json,.yaml,.yml" hidden />
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <section id="loading-section" class="hidden">
+      <div class="spinner"></div>
+      <p>Scanning configuration...</p>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results-section" class="hidden">
+      <!-- Summary Cards -->
+      <div class="summary-row">
+        <div class="card summary-card">
+          <span class="card-label">Servers</span>
+          <span class="card-value" id="summary-servers">0</span>
+        </div>
+        <div class="card summary-card">
+          <span class="card-label">Findings</span>
+          <span class="card-value" id="summary-total">0</span>
+        </div>
+        <div class="card summary-card severity-critical">
+          <span class="card-label">Critical</span>
+          <span class="card-value" id="summary-critical">0</span>
+        </div>
+        <div class="card summary-card severity-high">
+          <span class="card-label">High</span>
+          <span class="card-value" id="summary-high">0</span>
+        </div>
+        <div class="card summary-card severity-medium">
+          <span class="card-label">Medium</span>
+          <span class="card-value" id="summary-medium">0</span>
+        </div>
+        <div class="card summary-card severity-low">
+          <span class="card-label">Low / Info</span>
+          <span class="card-value" id="summary-low">0</span>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="filter-group">
+          <label>Filter:</label>
+          <button class="filter-btn active" data-severity="all">All</button>
+          <button class="filter-btn" data-severity="CRITICAL">Critical</button>
+          <button class="filter-btn" data-severity="HIGH">High</button>
+          <button class="filter-btn" data-severity="MEDIUM">Medium</button>
+          <button class="filter-btn" data-severity="LOW">Low</button>
+        </div>
+        <div class="export-group">
+          <button class="btn btn-export" data-fmt="json">⬇ JSON</button>
+          <button class="btn btn-export" data-fmt="markdown">⬇ Markdown</button>
+          <button class="btn btn-export" data-fmt="cef">⬇ CEF</button>
+          <button class="btn btn-export" data-fmt="csv">⬇ CSV</button>
+        </div>
+      </div>
+
+      <!-- Findings Table -->
+      <div class="findings-container">
+        <table id="findings-table">
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Server</th>
+              <th>Tool</th>
+              <th>OWASP</th>
+            </tr>
+          </thead>
+          <tbody id="findings-body">
+          </tbody>
+        </table>
+        <div id="no-findings" class="hidden">
+          <p>✅ No security issues found. Configuration looks clean.</p>
+        </div>
+      </div>
+
+      <!-- Detail Panel -->
+      <div id="detail-panel" class="hidden">
+        <div class="detail-header">
+          <h3 id="detail-title"></h3>
+          <button id="detail-close" class="btn-close">✕</button>
+        </div>
+        <div class="detail-body">
+          <p><strong>Severity:</strong> <span id="detail-severity"></span></p>
+          <p><strong>Check ID:</strong> <code id="detail-check-id"></code></p>
+          <p id="detail-server-row"><strong>Server:</strong> <code id="detail-server"></code></p>
+          <p id="detail-tool-row"><strong>Tool:</strong> <code id="detail-tool"></code></p>
+          <p id="detail-owasp-row"><strong>OWASP:</strong> <code id="detail-owasp"></code></p>
+          <hr />
+          <p><strong>Description:</strong></p>
+          <p id="detail-description"></p>
+          <p id="detail-evidence-row"><strong>Evidence:</strong></p>
+          <pre id="detail-evidence"></pre>
+          <p id="detail-remediation-row"><strong>Remediation:</strong></p>
+          <p id="detail-remediation" class="remediation"></p>
+        </div>
+      </div>
+
+      <!-- New Scan Button -->
+      <div class="actions">
+        <button id="new-scan-btn" class="btn btn-primary">← New Scan</button>
+      </div>
+    </section>
+
+    <!-- Error Section -->
+    <section id="error-section" class="hidden">
+      <div class="error-box">
+        <h3>⚠ Scan Error</h3>
+        <p id="error-message"></p>
+        <button id="error-retry-btn" class="btn btn-primary">Try Again</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
