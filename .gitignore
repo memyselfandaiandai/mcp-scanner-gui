@@ -1,0 +1,23 @@
+# Build artifacts
+dist/
+build/
+*.spec
+src-tauri/target/
+src-tauri/sidecar/*.exe
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
