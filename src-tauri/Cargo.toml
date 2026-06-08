@@ -1,8 +1,8 @@
 [package]
 name = "mcp-scanner-gui"
-version = "0.1.0"
-description = "MCP Security Scanner — Desktop GUI"
-authors = ["Cory Barham"]
+version = "0.2.0"
+description = "MCP Security Scanner — Desktop GUI (v2 with SARIF, SIEM, supply chain, toxic flow)"
+authors = ["memyselfandaiandai"]
 license = "MIT"
 edition = "2021"
 

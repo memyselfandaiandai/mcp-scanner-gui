@@ -12,17 +12,19 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # mcp-scanner imports
 from scanner.checks import run_checks
+from scanner.v2_checks import run_v2_checks
 from scanner.models import MCPServer, ScanResult, Severity
 from scanner.reporter import generate_json, generate_markdown
+from scanner.sarif_export import generate_sarif
 from scanner.siem_export import generate_export
 
-app = FastAPI(title="MCP Scanner GUI Backend", version="0.1.0")
+app = FastAPI(title="MCP Scanner GUI Backend", version="0.2.0")
 
 # CORS: allow requests from Tauri webview (localhost origins)
 app.add_middleware(
@@ -57,11 +59,14 @@ def _parse_config(path: str) -> list[MCPServer]:
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "version": "0.1.0"}
+    return {"status": "ok", "version": "0.2.0"}
 
 
 @app.post("/api/scan")
-async def scan_config(file: UploadFile = File(...)):
+async def scan_config(
+    file: UploadFile = File(...),
+    v2: bool = Query(True, description="Include v2 checks (supply chain, toxic flow, etc.)"),
+):
     """Upload an MCP config file and run a security scan."""
     scan_id = str(uuid.uuid4())
 
@@ -74,7 +79,12 @@ async def scan_config(file: UploadFile = File(...)):
 
     try:
         servers = _parse_config(tmp_path)
+
+        # Run v1 + v2 checks
         findings = run_checks(servers)
+        if v2:
+            findings.extend(run_v2_checks(servers))
+
         result = ScanResult(
             target=file.filename or tmp_path,
             servers=servers,
@@ -109,7 +119,13 @@ async def get_results(scan_id: str):
 
 @app.get("/api/export/{scan_id}/{fmt}")
 async def export_results(scan_id: str, fmt: str):
-    """Export scan results in the specified format."""
+    """Export scan results in the specified format.
+
+    Supported formats:
+    - json, markdown
+    - sarif (SARIF 2.1.0 — GitHub Advanced Security compatible)
+    - cef, leef, syslog, ndjson, csv, w3c (SIEM formats)
+    """
     result = _scan_store.get(scan_id)
     if not result:
         raise HTTPException(status_code=404, detail="Scan not found")
@@ -122,6 +138,10 @@ async def export_results(scan_id: str, fmt: str):
         content = generate_markdown(result)
         media_type = "text/markdown"
         filename = "scan-results.md"
+    elif fmt == "sarif":
+        content = generate_sarif(result)
+        media_type = "application/sarif+json"
+        filename = "scan-results.sarif"
     elif fmt in ("cef", "leef", "syslog", "ndjson", "csv", "w3c"):
         content = generate_export(result, fmt)
         media_type = "text/plain"
@@ -129,7 +149,7 @@ async def export_results(scan_id: str, fmt: str):
     else:
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown format: {fmt}. Supported: json, markdown, cef, leef, syslog, ndjson, csv, w3c",
+            detail=f"Unknown format: {fmt}. Supported: json, markdown, sarif, cef, leef, syslog, ndjson, csv, w3c",
         )
 
     from fastapi.responses import Response
@@ -138,6 +158,18 @@ async def export_results(scan_id: str, fmt: str):
         media_type=media_type,
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
+
+
+@app.get("/api/discover")
+async def discover_configs(
+    home: str = Query("", description="Home directory to search (defaults to current user's)"),
+):
+    """Auto-detect MCP configurations from known AI client locations."""
+    from scanner.discovery import discover as _discover
+
+    home_dir = Path(home) if home else Path.home()
+    found = _discover(home_dir)
+    return {"locations": found}
 
 
 if __name__ == "__main__":
