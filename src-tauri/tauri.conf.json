@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nicedocio/tauri/dev/.schema/config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/.schema/config.schema.json",
   "productName": "MCP Scanner",
   "version": "0.2.0",
   "identifier": "com.owl.mcp-scanner",

@@ -41,7 +41,7 @@ mcp-scanner-gui/
 │   └── app.js
 ├── backend/                # Python FastAPI server
 │   ├── main.py             # API endpoints
-│   ├── scanner_wrapper.py  # Wraps mcp-scanner library
+│   ├── mcp_scanner.py      # Wraps mcp-scanner library
 │   └── requirements.txt
 ├── scripts/
 │   ├── build-sidecar.sh    # PyInstaller build for Linux

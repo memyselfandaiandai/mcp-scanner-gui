@@ -16,13 +16,15 @@ from fastapi import FastAPI, File, HTTPException, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# mcp-scanner imports
+# mcp-scanner core imports (installed from CLI repo)
 from scanner.checks import run_checks
-from scanner.v2_checks import run_v2_checks
 from scanner.models import MCPServer, ScanResult, Severity
 from scanner.reporter import generate_json, generate_markdown
 from scanner.sarif_export import generate_sarif
 from scanner.siem_export import generate_export
+
+# GUI-specific extensions (local)
+from gui_scanner.v2_checks import run_v2_checks
 
 app = FastAPI(title="MCP Scanner GUI Backend", version="0.2.0")
 
@@ -165,7 +167,7 @@ async def discover_configs(
     home: str = Query("", description="Home directory to search (defaults to current user's)"),
 ):
     """Auto-detect MCP configurations from known AI client locations."""
-    from scanner.discovery import discover as _discover
+    from gui_scanner.discovery import discover as _discover
 
     home_dir = Path(home) if home else Path.home()
     found = _discover(home_dir)
