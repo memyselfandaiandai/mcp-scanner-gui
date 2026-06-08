@@ -46,7 +46,7 @@ winget install Microsoft.VisualStudio.2022.BuildTools --accept-package-agreement
 
 ```powershell
 cd C:\Users\MyHedwig\projects
-git clone https://github.com/coryabarham/mcp-scanner-gui.git
+git clone https://github.com/memyselfandaiandai/mcp-scanner-gui.git
 cd mcp-scanner-gui
 ```
 
@@ -57,7 +57,7 @@ cd mcp-scanner-gui
 pip install click pyyaml rich fastapi uvicorn python-multipart pyinstaller
 
 # Clone mcp-scanner to get the scanner/ module
-git clone --depth 1 https://github.com/coryabarham/mcp-scanner.git C:\Users\MyHedwig\projects\tmp-mcp-scanner
+git clone --depth 1 https://github.com/memyselfandaiandai/mcp-scanner.git C:\Users\MyHedwig\projects\tmp-mcp-scanner
 
 # Copy the scanner module into the backend directory
 Copy-Item -Recurse -Force C:\Users\MyHedwig\projects\tmp-mcp-scanner\scanner .\backend\scanner

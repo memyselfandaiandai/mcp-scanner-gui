@@ -1,6 +1,6 @@
 # MCP Security Scanner GUI
 
-A desktop application wrapping [mcp-scanner](https://github.com/coryabarham/mcp-scanner)
+A desktop application wrapping [mcp-scanner](https://github.com/memyselfandaiandai/mcp-scanner)
 with a modern web-based GUI, built with **Tauri** (Rust) + **Python** backend.
 
 ## Architecture

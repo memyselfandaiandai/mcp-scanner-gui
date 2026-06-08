@@ -105,7 +105,7 @@ pip show pyinstaller  # Version: 6.x.x
 ### Initial Project Setup (once)
 ```powershell
 cd C:\Users\Hedwig\projects
-git clone https://github.com/coryabarham/mcp-scanner-gui.git
+git clone https://github.com/memyselfandaiandai/mcp-scanner-gui.git
 cd mcp-scanner-gui
 
 # Install Python deps
